@@ -69,7 +69,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   REMOTE_PUPPET_TMP_DIR = '/tmp/vagrant/puppet'
   config.vm.provision :shell do |shell|
     cmd = "mkdir -p #{REMOTE_PUPPET_MODULE_DIR};"
-
     mod_names=['jdowning-rbenv','puppetlabs-firewall']
     mod_names.each do | mod_name |
       cmd << "{ puppet module list | grep #{mod_name} > /dev/null; } || puppet module install -i #{REMOTE_PUPPET_MODULE_DIR} #{mod_name};"

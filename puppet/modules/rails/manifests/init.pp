@@ -19,5 +19,23 @@ class rails (
     group  => "vagrant",
     mode   => 664,
   }
-
+  exec{ 'initialize-project' :
+    command => "rails new ${projectroot} -T -B -f",
+    environment =>  'HOME=/home/vagrant',
+    path => ['/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/local/rbenv/shims',]
+  }~>
+  exec{ 'bundle-install' :
+    command => "bundle install --path vendor/bundle",
+    cwd => $projectroot,
+    path => ['/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/local/rbenv/shims',]
+  }~>
+  exec {'rubyracer-gem' :
+    command => "echo 'gem \"therubyracer\"\n' >> ${projectroot}/Gemfile",
+    user => "vagrant"
+  }~>
+  exec{ 'bundle-update' :
+    command => "bundle update",
+    cwd => $projectroot,
+    path => ['/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/local/rbenv/shims',]
+  }
 }
