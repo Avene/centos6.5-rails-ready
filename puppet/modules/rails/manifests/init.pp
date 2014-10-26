@@ -1,13 +1,13 @@
 class rails (
   $projectroot = '/home/vagrant/project',
+  $user = "vagrant",
+  $group = "vagrant"
 ){
-  rbenv::gem{ 'rails': ruby_version => '2.1.3', timeout => 1500 }
-  rbenv::gem{ 'therubyracer': ruby_version => '2.1.3', timeout => 1500 }
 
   file { $projectroot:
     ensure => "directory",
-    owner  => "vagrant",
-    group  => "vagrant",
+    owner  => $user,
+    group  => $group,
     mode   => 775,
   }
   file { "${projectroot}/Gemfile":
@@ -15,27 +15,34 @@ class rails (
     ensure => present,
     content => "source 'https://rubygems.org'\n
                 gem 'rails'\n",
-    owner  => "vagrant",
-    group  => "vagrant",
+    owner  => $user,
+    group  => $group,
     mode   => 664,
-  }
-  exec{ 'initialize-project' :
-    command => "rails new ${projectroot} -T -B -f",
-    environment =>  'HOME=/home/vagrant',
-    path => ['/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/local/rbenv/shims',]
   }~>
   exec{ 'bundle-install' :
     command => "bundle install --path vendor/bundle",
-    cwd => $projectroot,
-    path => ['/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/local/rbenv/shims',]
+    unless => "test -d ${projectroot}/vendor/bundle",
+    refreshonly => true,
+  }~>
+  exec{ 'rails-new' :
+    command => "bundle exec rails new . -T -f",
+    environment =>  'HOME=/home/vagrant',
+    refreshonly => true,
   }~>
   exec {'rubyracer-gem' :
     command => "echo 'gem \"therubyracer\"\n' >> ${projectroot}/Gemfile",
-    user => "vagrant"
+    refreshonly => true,
   }~>
   exec{ 'bundle-update' :
     command => "bundle update",
+    refreshonly => true,
+  }
+
+  Exec {
     cwd => $projectroot,
-    path => ['/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/local/rbenv/shims',]
+    path => ['/usr/sbin', '/usr/bin', '/sbin', '/bin', '/usr/local/rbenv/shims',],
+    user => $user,
+    group => $group,
+    timeout => 1500,
   }
 }

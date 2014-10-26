@@ -14,11 +14,6 @@ class ruby {
   rbenv::build { '2.1.3': global => true }
 }
 
-#class rails{
-#  rbenv::gem{ 'rails': ruby_version => '2.1.3', timeout => 1500 }
-#  rbenv::gem{ 'therubyracer': ruby_version => '2.1.3', timeout => 1500 }
-#}
-
 class { 'ruby' : }
 class { 'rails' :
   require => Class['ruby']
