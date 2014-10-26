@@ -66,6 +66,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # the file default.pp in the manifests_path directory.
   #
   REMOTE_PUPPET_MODULE_DIR = '/etc/puppet/modules'
+  REMOTE_PUPPET_TMP_DIR = '/tmp/vagrant/puppet'
   config.vm.provision :shell do |shell|
     cmd = "mkdir -p #{REMOTE_PUPPET_MODULE_DIR};"
 
@@ -74,19 +75,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       cmd << "{ puppet module list | grep #{mod_name} > /dev/null; } || puppet module install -i #{REMOTE_PUPPET_MODULE_DIR} #{mod_name};"
     end
 
+    cmd << "rm -fr #{REMOTE_PUPPET_TMP_DIR};"
+
     shell.inline = cmd
   end
 
-  REMOTE_TMP_PUPPET_MODULE_DIR = '/tmp/vagrant/puppet/modules'
   config.vm.provision :file,
                       source: "puppet/modules",
-                      destination: REMOTE_TMP_PUPPET_MODULE_DIR
+                      destination: "#{REMOTE_PUPPET_TMP_DIR}/."
 
   config.vm.provision :shell do |shell|
-    shell.inline = "cp -fpr #{REMOTE_TMP_PUPPET_MODULE_DIR}/* #{REMOTE_PUPPET_MODULE_DIR}"
+    shell.inline = "cp -fpr #{REMOTE_PUPPET_TMP_DIR}/modules/* #{REMOTE_PUPPET_MODULE_DIR}"
   end
 
   config.vm.provision "puppet" do |puppet|
+    puppet.options = "--verbose --debug"
 
     puppet.manifests_path = "puppet/manifests"
     puppet.manifest_file = "default.pp"

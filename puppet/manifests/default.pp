@@ -8,14 +8,25 @@ stage { 'preinstall':
   before => Stage['main']
 }
 
-include rbenv
-rbenv::plugin { [ 'sstephenson/rbenv-vars', 'sstephenson/ruby-build' ]: }
-rbenv::build { '2.1.2': global => true }
+class ruby {
+  include rbenv
+  rbenv::plugin { [ 'sstephenson/rbenv-vars', 'sstephenson/ruby-build' ]: }
+  rbenv::build { '2.1.3': global => true }
+}
+
+#class rails{
+#  rbenv::gem{ 'rails': ruby_version => '2.1.3', timeout => 1500 }
+#  rbenv::gem{ 'therubyracer': ruby_version => '2.1.3', timeout => 1500 }
+#}
+
+class { 'ruby' : }
+class { 'rails' :
+  require => Class['ruby']
+}
 
 resources { "firewall":
   purge => true
 }
-
 Firewall {
   require => Class['firewall-config::pre'],
   before  => Class['firewall-config::post'],
