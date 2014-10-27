@@ -12,6 +12,7 @@ class ruby {
   include rbenv
   rbenv::plugin { [ 'sstephenson/rbenv-vars', 'sstephenson/ruby-build' ]: }
   rbenv::build { '2.1.3': global => true }
+
 }
 
 class { 'ruby' : }

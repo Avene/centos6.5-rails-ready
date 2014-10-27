@@ -20,18 +20,20 @@ class rails (
     mode   => 664,
   }~>
   exec{ 'bundle-install' :
-    command => "bundle install --path vendor/bundle",
+    command => "bundle install --path vendor/bundle --jobs 4",
     unless => "test -d ${projectroot}/vendor/bundle",
     refreshonly => true,
   }~>
   exec{ 'rails-new' :
     command => "bundle exec rails new . -T -f",
     environment =>  'HOME=/home/vagrant',
+    unless => "test -e ${projectroot}/bin/rails",
     refreshonly => true,
   }~>
   exec {'rubyracer-gem' :
-    command => "echo 'gem \"therubyracer\"\n' >> ${projectroot}/Gemfile",
+    command => "echo 'gem \"therubyracer\",  platforms: :ruby\n' >> ${projectroot}/Gemfile",
     refreshonly => true,
+    unless => "grep -e \"therubyracer\" Gemfile | grep -v \"^[:space:]*#.*gem\" 2>/dev/null"
   }~>
   exec{ 'bundle-update' :
     command => "bundle update",
