@@ -12,6 +12,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   # config.vm.box = "centos6.5_x86_64"
   config.vm.box = "centos6.5_base"
+  
+  config.vm.box_url = "https://vagrantcloud.com/nrel/boxes/CentOS-6.5-x86_64/versions/4/providers/virtualbox.box"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
